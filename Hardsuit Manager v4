@@ -35,7 +35,6 @@ if suit.TemperatureExternal < minTemp then
 goto whileSafe
 endif
 
-
 disableLifeSupport:
 active = false
 gosub setSupportStats
@@ -54,7 +53,6 @@ goto enableLifeSupport
 endif
 yield()
 goto whileDanger
-
 
 openOverride:
 active = false
@@ -82,11 +80,6 @@ goto holdClosed
 setSupportStats:
 suit.AirRelease = active
 helmet.Open = not(active)
-if helmet.Open == false then
-suit.Setting = 12
-else
-suit.Setting = 6
-endif
 
 intTempManager:
 gosub filterManager
