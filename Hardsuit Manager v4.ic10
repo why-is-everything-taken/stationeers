@@ -1,0 +1,105 @@
+alias helmet = d0
+alias suit = IC.this
+var maxTemp = 47C
+var minTemp = 0C
+var maxPress = 150kPa
+var minPress = 40kPa
+var active
+var isOpen
+
+suit.PressureSetting = 101kPa
+suit.TemperatureSetting = 35C
+
+enableLifeSupport:
+active = true
+gosub setSupportStats
+
+whileSafe:
+yield()
+isOpen = helmet.Open
+if isOpen == true then
+goto openOverride
+endif
+
+if suit.PressureExternal > maxPress then
+goto whileSafe
+endif
+if suit.PressureExternal < minPress then
+goto whileSafe
+endif
+
+if suit.TemperatureExternal > maxTemp then
+goto whileSafe
+endif
+if suit.TemperatureExternal < minTemp then
+goto whileSafe
+endif
+
+
+disableLifeSupport:
+active = false
+gosub setSupportStats
+
+whileDanger:
+if helmet.Open == false then 
+goto closedOverride
+endif
+
+if suit.TemperatureExternal > maxTemp || suit.TemperatureExternal < minTemp then
+goto enableLifeSupport
+endif
+
+if suit.PressureExternal > maxPress || suit.PressureExternal < minPress then
+goto enableLifeSupport
+endif
+yield()
+goto whileDanger
+
+
+openOverride:
+active = false
+gosub setSupportStats
+
+holdOpen:
+yield()
+if helmet.Open == false then
+goto enableLifeSupport
+endif
+goto holdOpen
+
+closedOverride:
+active = true
+gosub setSupportStats
+
+holdClosed:
+yield()
+if helmet.Open == true then
+goto disableLifeSupport
+endif
+gosub intTempManager
+goto holdClosed
+
+setSupportStats:
+suit.AirRelease = active
+helmet.Open = not(active)
+if helmet.Open == false then
+suit.Setting = 12
+else
+suit.Setting = 6
+endif
+
+intTempManager:
+gosub filterManager
+if helmet.Temperature >= 45C then
+suit.On = 1
+elseif helmet.Temperature <= 35C then
+suit.On = 0
+endif
+
+filterManager:
+if helmet.RatioOxygen < 30% then
+suit.Filtration = true
+elseif helmet.RatioCarbonDioxide < 10% then
+suit.Filtration = false
+endif
+return
