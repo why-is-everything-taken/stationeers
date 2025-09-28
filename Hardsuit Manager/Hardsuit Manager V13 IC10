@@ -1,7 +1,7 @@
 # Switch on-off and see the pin's names
 alias helmet d0 #l.1
 yield #l.1
-move r4 0 #l.19
+move r1 0 #l.19
 s db TemperatureSetting 303.15 #l.11
 s db PressureSetting 40 #l.12
 mainLoop:
@@ -10,49 +10,49 @@ l r0 d0 Lock #l.16
 bne r0 0 12 #l.16
 j checkOverride #l.17
 j 31 #l.18
-add sp 6 r4 #l.19
+add sp 6 r1 #l.19
 push ra #l.19
-add r4 r4 1 #l.19
+add r1 r1 1 #l.19
 jal evalEnvironment #l.19
-sub r4 r4 1 #l.19
-add sp 7 r4 #l.19
-add r4 r4 1 #l.20
+sub r1 r1 1 #l.19
+add sp 7 r1 #l.19
+add r1 r1 1 #l.20
 jal filterManager #l.20
-sub r4 r4 1 #l.20
-add sp 7 r4 #l.20
-add r4 r4 1 #l.21
+sub r1 r1 1 #l.20
+add sp 7 r1 #l.20
+add r1 r1 1 #l.21
 jal tempManager #l.21
-sub r4 r4 1 #l.21
-add sp 7 r4 #l.21
-add r4 r4 1 #l.22
+sub r1 r1 1 #l.21
+add sp 7 r1 #l.21
+add r1 r1 1 #l.22
 jal applySuitState #l.22
-sub r4 r4 1 #l.22
-add sp 7 r4 #l.22
+sub r1 r1 1 #l.22
+add sp 7 r1 #l.22
 pop ra #l.22
 j mainLoop #l.24
 applySuitState:
-s db AirRelease r5 #l.27
-seq r0 r5 0 #l.28
+s db AirRelease r2 #l.27
+seq r0 r2 0 #l.28
 s d0 Open r0 #l.28
 j ra #l.29
 evalEnvironment:
 l r0 db PressureExternal #l.32
 ble r0 150 42 #l.32
-move r5 1 #l.33
+move r2 1 #l.33
 j 55 #l.32
 l r0 db PressureExternal #l.34
 bge r0 40 46 #l.34
-move r5 1 #l.35
+move r2 1 #l.35
 j 55 #l.34
 l r0 db TemperatureExternal #l.36
 ble r0 323.15 50 #l.36
-move r5 1 #l.37
+move r2 1 #l.37
 j 55 #l.36
 l r0 db TemperatureExternal #l.38
 bge r0 273.15 54 #l.38
-move r5 1 #l.39
+move r2 1 #l.39
 j 55 #l.38
-move r5 0 #l.41
+move r2 0 #l.41
 j ra #l.43
 tempManager:
 l r0 d0 Open #l.46
@@ -66,39 +66,40 @@ bge r0 303.15 66 #l.49
 s db On 0 #l.50
 j ra #l.53
 filterManager:
-l r3 d0 Open #l.56
-l r2 d0 RatioOxygen #l.56
-l r0 d0 RatioCarbonDioxide #l.56
-sgt r1 r0 0.1 #l.56
-or r0 0.3 r1 #l.56
-slt r1 r2 r0 #l.56
-and r0 0 r1 #l.56
-bne r3 r0 78 #l.56
-s db Filtration 1 #l.57
-j 79 #l.58
-s db Filtration 0 #l.59
-j ra #l.61
+l r0 d0 Open #l.56
+bne r0 0 80 #l.56
+l r0 d0 RatioOxygen #l.57
+bge r0 0.3 75 #l.57
+s db Filtration 1 #l.58
+j ra #l.59
+j 79 #l.57
+l r0 d0 RatioCarbonDioxide #l.60
+bge r0 0.1 79 #l.60
+s db Filtration 0 #l.61
+j ra #l.62
+s db Filtration 0 #l.64
+j ra #l.66
 checkOverride:
-l r0 d0 Open #l.64
-bne r0 1 88 #l.64
-s db AirRelease 0 #l.65
-s db Filtration 0 #l.66
-s db On 0 #l.67
-j mainLoop #l.68
-j 103 #l.64
 l r0 d0 Open #l.69
-bne r0 0 103 #l.69
-s db AirRelease 1 #l.70
-add sp 6 r4 #l.71
-push ra #l.71
-add r4 r4 1 #l.71
-jal tempManager #l.71
-sub r4 r4 1 #l.71
-add sp 7 r4 #l.71
-add r4 r4 1 #l.72
-jal filterManager #l.72
-sub r4 r4 1 #l.72
-add sp 7 r4 #l.72
-pop ra #l.72
+bne r0 1 89 #l.69
+s db AirRelease 0 #l.70
+s db Filtration 0 #l.71
+s db On 0 #l.72
 j mainLoop #l.73
-# Compiled at 2025-09-28 17:51 by Exca's Basic10.
+j 104 #l.69
+l r0 d0 Open #l.74
+bne r0 0 104 #l.74
+s db AirRelease 1 #l.75
+add sp 6 r1 #l.76
+push ra #l.76
+add r1 r1 1 #l.76
+jal tempManager #l.76
+sub r1 r1 1 #l.76
+add sp 7 r1 #l.76
+add r1 r1 1 #l.77
+jal filterManager #l.77
+sub r1 r1 1 #l.77
+add sp 7 r1 #l.77
+pop ra #l.77
+j mainLoop #l.78
+# Compiled at 2025-09-28 19:24 by Exca's Basic10.
