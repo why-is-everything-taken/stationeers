@@ -1,0 +1,74 @@
+# Switch on-off and see the pin's names
+alias helmet d0 #l.1
+yield #l.1
+
+# ^ these lines are not necessary ^
+
+move r4 0 #l.16
+move r9 320.15 #l.3
+move r8 273.15 #l.4
+move r11 318.15 #l.5
+move sp 57 #l.5
+# push maxtempint into stack
+push r11 #l.5
+move r10 303.15 #l.6
+move r7 150 #l.7
+move r6 40 #l.8
+start:
+move r5 1 #l.15
+add sp 6 r4 #l.16
+push ra #l.16
+add r4 r4 1 #l.16
+jal support #l.16
+sub r4 r4 1 #l.16
+add sp 7 r4 #l.16
+pop ra #l.16
+checkSafe:
+l r0 d0 Open #l.19
+bne r0 1 26 #l.19
+j uLab_openOverride #l.20
+add sp 6 r4 #l.22
+push ra #l.22
+add r4 r4 1 #l.22
+jal filterManager #l.22
+sub r4 r4 1 #l.22
+add sp 7 r4 #l.22
+pop ra #l.22
+l r2 db PressureExternal #l.24
+l r0 db PressureExternal #l.24
+and r1 r7 r0 #l.24
+sgt r0 r1 r6 #l.24
+slt r3 r2 r0 #l.24
+l r2 db TemperatureExternal #l.25
+l r0 db TemperatureExternal #l.25
+and r1 r9 r0 #l.25
+sgt r0 r1 r8 #l.25
+slt r1 r2 r0 #l.25
+and r2 1 r1 #l.27
+seq r0 r2 1 #l.27
+bne r3 r0 48 #l.27
+move r5 0 #l.28
+j 49 #l.29
+move r5 1 #l.30
+support:
+s db AirRelease r5 #l.34
+seq r0 r5 0 #l.35
+s d0 Open r0 #l.35
+filterManager:
+l r0 d0 RatioOxygen #l.38
+bge r0 0.3 58 #l.38
+s db Filtration 1 #l.39
+j 61 #l.38
+l r0 d0 RatioCarbonDioxide #l.40
+bge r0 0.1 61 #l.40
+s db Filtration 0 #l.41
+tempManager:
+l r0 d0 Temperature #l.45
+blt r0 318.15 66 #l.45
+s db On 1 #l.46
+j 69 #l.45
+l r0 d0 Temperature #l.47
+bgt r0 303.15 69 #l.47
+s db On 0 #l.48
+j ra #l.50
+# Compiled at 2025-09-28 03:33 by Exca's Basic10.
