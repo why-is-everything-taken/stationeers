@@ -1,9 +1,6 @@
 # Switch on-off and see the pin's names
 alias helmet d0 #l.1
 yield #l.1
-
-# ^ these lines are not necessary ^
-
 move r4 0 #l.16
 move r9 320.15 #l.3
 move r8 273.15 #l.4
