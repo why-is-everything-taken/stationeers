@@ -1,0 +1,73 @@
+alias helmet = d0
+alias suit = db
+
+var active
+
+const maxTempExt = 50C
+const minTempExt = 0C
+const maxPress = 150kPa
+const minPress = 40kPa
+
+suit.TemperatureSetting = 30C
+suit.PressureSetting = 40kPa
+
+mainLoop:
+yield()
+if helmet.Lock == false then
+goto checkOverride
+else
+gosub evalEnvironment
+gosub filterManager
+gosub tempManager
+gosub applySuitState
+endif
+goto mainLoop
+
+applySuitState:
+suit.AirRelease = active
+helmet.Open = not(active)
+return
+
+evalEnvironment:
+if suit.PressureExternal > maxPress then
+active = 1
+elseif suit.PressureExternal < minPress then
+active = 1
+elseif suit.TemperatureExternal > maxTempExt then
+active = 1
+elseif suit.TemperatureExternal < minTempExt then
+active = 1
+else
+active = 0
+endif
+return
+
+tempManager:
+if helmet.Open == false then
+if helmet.Temperature > 45C then
+suit.On = 1
+elseif helmet.Temperature < 30C then
+suit.On = 0
+endif
+endif
+return
+
+filterManager:
+if helmet.Open == false && (helmet.RatioOxygen < 0.3 || helmet.RatioCarbonDioxide > 0.1) then
+suit.Filtration = 1
+else
+suit.Filtration = 0
+endif
+return
+
+checkOverride:
+if helmet.Open == true then
+suit.AirRelease = false
+suit.Filtration = false
+suit.On = false
+elseif helmet.Open == false then
+suit.AirRelease = true
+gosub tempManager
+gosub filterManager
+endif
+goto mainLoop
