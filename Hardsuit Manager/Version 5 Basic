@@ -1,0 +1,50 @@
+alias helmet = d0
+alias suit = IC.this
+var maxTempExt = 47C
+var minTempExt = 0C
+var maxTempInt = 45C
+var minTempInt = 30C
+var maxPress = 150kPa
+var minPress = 40kPa
+var suitPressExt
+var suitTempExt
+var isSafe
+var active
+
+start:
+active = true
+gosub support
+
+checkSafe:
+if helmet.Open == true then
+goto openOverride
+endif
+gosub filterManager
+
+suitPressExt = suit.PressureExternal < maxPress && suit.PressureExternal > minPress
+suitTempExt = suit.TemperatureExternal < maxTempExt && suit.TemperatureExternal > minTempExt
+
+if suitPressExt == true && suitTempExt == true then
+active = false
+else
+active = true
+endif
+
+support:
+suit.AirRelease = active
+helmet.Open = not(active)
+
+filterManager:
+if helmet.RatioOxygen < 30% then
+suit.Filtration = true
+elseif helmet.RatioCarbonDioxide < 10% then
+suit.Filtration = false
+endif
+
+tempManager:
+if helmet.Temperature >= 45C then
+suit.On = true
+elseif helmet.Temperature <= 30C then
+suit.On = false
+endif
+return
