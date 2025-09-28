@@ -53,10 +53,15 @@ endif
 return
 
 filterManager:
-if helmet.Open == false && (helmet.RatioOxygen < 0.3 || helmet.RatioCarbonDioxide > 0.1) then
-suit.Filtration = 1
-else
-suit.Filtration = 0
+if helmet.Open == false then
+if helmet.RatioOxygen < 30% then
+suit.Filtration = true
+return
+elseif helmet.RatioCarbonDioxide < 10% then
+suit.Filtration = false
+return
+endif
+suit.Filtration = false
 endif
 return
 
@@ -65,9 +70,10 @@ if helmet.Open == true then
 suit.AirRelease = false
 suit.Filtration = false
 suit.On = false
+goto mainLoop
 elseif helmet.Open == false then
 suit.AirRelease = true
 gosub tempManager
 gosub filterManager
-endif
 goto mainLoop
+endif
